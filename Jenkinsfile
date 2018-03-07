@@ -29,12 +29,16 @@ volumes: [
     }
     stage('Create Docker images') {
       container('docker') {
-
-      sh """
-        docker build -t ${ECR_HOST}/sample-service:${currentBuild.number} .
-        docker push ${ECR_HOST}/sample-service:${currentBuild.number}
-        """
-
+        withCredentials([[$class: 'UsernamePasswordMultiBinding',
+          credentialsId: 'ecr',
+          usernameVariable: 'ECR_USER',
+          passwordVariable: 'ECR_PASSWORD']]) {
+              sh """
+                docker login -u ${ECR_USER} -p ${ECR_PASSWORD} https://${ECR_HOST}
+                docker build -t ${ECR_HOST}/sample-service:${currentBuild.number} .
+                docker push ${ECR_HOST}/sample-service:${currentBuild.number}
+                """
+        }
       }
     }
   }
