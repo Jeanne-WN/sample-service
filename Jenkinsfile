@@ -1,16 +1,12 @@
-def label = "jenkins-slave-${UUID.randomUUID().toString()}"
+def label = "worker-${UUID.randomUUID().toString()}"
 
 podTemplate(label: label, containers: [
-  containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true),
-],
-volumes: [
-  hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
+   containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true)
+], volumes: [
+   hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
 ]){
  node(label) {
-    def myRepo = checkout scm
-    def gitCommit = myRepo.GIT_COMMIT
-    def shortGitCommit = "${gitCommit[0..10]}"
-    def previousGitCommit = sh(script: "git rev-parse ${gitCommit}~", returnStdout: true)
+    checkout scm
 
     stage('Test') {
       try {
@@ -24,9 +20,11 @@ volumes: [
         throw(exc)
       }
     }
+
     stage('Build') {
       sh "./gradlew build"
     }
+
     stage('Create Docker images') {
       container('docker') {
         withCredentials([[$class: 'UsernamePasswordMultiBinding',
@@ -38,8 +36,8 @@ volumes: [
                 docker build -t ${ECR_HOST}/sample-service:${currentBuild.number} .
                 docker push ${ECR_HOST}/sample-service:${currentBuild.number}
                 """
-        }
-      }
+         }
+       }
     }
   }
 }
