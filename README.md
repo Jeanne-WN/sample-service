@@ -1,3 +1,3 @@
 ## Sample Service
 
-This is sample service
+This is sample service.

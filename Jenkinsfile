@@ -12,7 +12,6 @@ podTemplate(label: label, containers: [
     stage('Test') {
       try {
         sh """
-          pwd
           ./gradlew test
           """
       }
@@ -43,7 +42,10 @@ podTemplate(label: label, containers: [
 
     stage('Deploy') {
       container('kubectl') {
-        sh 'kubectl create -f ./deployment.yml'
+        sh """
+           kubectl set image --namespace=poc deployments/sample-service sample-service=${ECR_HOST}/sample-service:${currentBuild.number}
+           kubectl --namespace=poc rollout status deployments/sample-service
+        """
       }
     }
   }
