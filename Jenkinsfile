@@ -35,6 +35,7 @@ podTemplate(label: label, containers: [
                 docker login -u ${ECR_USER} -p ${ECR_PASSWORD} https://${ECR_HOST}
                 docker build -t ${ECR_HOST}/sample-service:${currentBuild.number} -t ${ECR_HOST}/sample-service:latest .
                 docker push ${ECR_HOST}/sample-service:${currentBuild.number}
+                docker push ${ECR_HOST}/sample-service:latest
                 """
          }
        }
