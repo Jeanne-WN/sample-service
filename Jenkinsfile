@@ -1,7 +1,8 @@
 def label = "slave-${UUID.randomUUID().toString()}"
 
 podTemplate(label: label, containers: [
-   containerTemplate(name: 'docker', image: 'docker', command: 'cat', privileged: true, ttyEnabled: true)
+   containerTemplate(name: 'docker', image: 'docker', command: 'cat', privileged: true, ttyEnabled: true),
+   containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl', ttyEnabled: true, command: 'cat')
 ], volumes: [
    hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
 ]){
@@ -38,6 +39,12 @@ podTemplate(label: label, containers: [
                 """
          }
        }
+    }
+
+    stage('Deploy') {
+      container('kubectl') {
+        sh 'kubectl create ./deployment.yml'
+      }
     }
   }
 }
