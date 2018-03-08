@@ -33,7 +33,7 @@ podTemplate(label: label, containers: [
           passwordVariable: 'ECR_PASSWORD']]) {
               sh """
                 docker login -u ${ECR_USER} -p ${ECR_PASSWORD} https://${ECR_HOST}
-                docker build -t ${ECR_HOST}/sample-service:${currentBuild.number} .
+                docker build -t ${ECR_HOST}/sample-service:${currentBuild.number} -t ${ECR_HOST}/sample-service:latest .
                 docker push ${ECR_HOST}/sample-service:${currentBuild.number}
                 """
          }
@@ -43,8 +43,8 @@ podTemplate(label: label, containers: [
     stage('Deploy') {
       container('kubectl') {
         sh """
-           kubectl set image --namespace=poc deployments/sample-service sample-service=${ECR_HOST}/sample-service:${currentBuild.number}
-           kubectl --namespace=poc rollout status deployments/sample-service
+           kubectl set image --namespace=poc deployments/sample-service-deployment sample-service=${ECR_HOST}/sample-service:${currentBuild.number}
+           kubectl --namespace=poc rollout status deployments/sample-service-deployment
         """
       }
     }

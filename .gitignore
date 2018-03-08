@@ -29,3 +29,6 @@ out/
 ### Terraform ###
 **/.terraform/**
 **/terraform.tfstate.backup
+
+### VS Code ###
+.vscode
