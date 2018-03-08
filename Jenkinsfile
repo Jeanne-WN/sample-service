@@ -43,7 +43,7 @@ podTemplate(label: label, containers: [
 
     stage('Deploy') {
       container('kubectl') {
-        sh 'kubectl create ./deployment.yml'
+        sh 'kubectl create -f ./deployment.yml'
       }
     }
   }
