@@ -27,12 +27,9 @@ podTemplate(label: label, containers: [
 
     stage('Create Docker images') {
       container('docker') {
-        withCredentials([[$class: 'UsernamePasswordMultiBinding',
-          credentialsId: 'ecr',
-          usernameVariable: 'ECR_USER',
-          passwordVariable: 'ECR_PASSWORD']]) {
+        def credential = "ecr:${AWS_REGION}:${ECR_CREDENTIAL}"
+        docker.withRegistry("https://${ECR_HOST}", credential) {
               sh """
-                docker login -u ${ECR_USER} -p ${ECR_PASSWORD} https://${ECR_HOST}
                 docker build -t ${ECR_HOST}/sample-service:${currentBuild.number} -t ${ECR_HOST}/sample-service:latest .
                 docker push ${ECR_HOST}/sample-service:${currentBuild.number}
                 docker push ${ECR_HOST}/sample-service:latest
