@@ -1,0 +1,59 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sample-service-deployment
+  namespace: poc
+  labels:
+    app: sample-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sample-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  revisionHistoryLimit: 2
+  template:
+    metadata:
+      labels:
+        app: sample-service
+    spec:
+      containers:
+      - name: sample-service
+        image: IMAGE_NAME
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /finder/hello-world
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /finder/hello-world
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 3
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: poc
+  name: sample-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: sample-service
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
