@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: sample-service
-        image: IMAGE_NAME
+        image: IMAGE_ADDRESS
         imagePullPolicy: Always
         ports:
           - containerPort: 8080
